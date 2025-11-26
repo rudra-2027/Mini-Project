@@ -1,0 +1,30 @@
+{
+  "students": [
+    {
+      "id": "f201",
+      "name": "Rudra",
+      "email": "h@alds",
+      "section": "Section A",
+      "enrollmentDate": "2025-11-12"
+    }
+  ],
+  "sections": [],
+  "results": [
+    {
+      "id": "b5a8",
+      "name": "Rudra",
+      "subject": "English",
+      "marks": "20",
+      "grade": "c",
+      "examdate": "2025-11-28"
+    },
+    {
+      "id": "0b17",
+      "name": "Rohan ",
+      "subject": "maths",
+      "marks": "50",
+      "grade": "B",
+      "examdate": "2025-11-28"
+    }
+  ]
+}
