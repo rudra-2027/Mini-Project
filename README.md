@@ -135,7 +135,7 @@ JSON Server will run on: **http://localhost:3000/**
 
 ---
 
-## 🔌 API Endpoints
+## API Endpoints
 
 | Endpoint    | Purpose                     |
 | ----------- | --------------------------- |
