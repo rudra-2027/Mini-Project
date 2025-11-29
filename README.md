@@ -6,7 +6,7 @@ A clean and efficient web-based system for managing student exam results. This p
 
 ---
 
-## ✨ Features
+##  Features
 
 ### Result Management
 -  Add new results
