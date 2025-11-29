@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import DeleteDialog from "../model/DeleteDialog";
+import axios from "axios";
 
 const ResultTable = () => {
   const [results, setResults] = useState([]);
@@ -10,15 +12,30 @@ const ResultTable = () => {
 
   const [showForm, setShowForm] = useState(false);
 
+  const [editForm, setEditForm] = useState(false);
+  const [editData, setEditData] = useState(null);
+
   const [name, setName] = useState("");
   const [subject, setSubject] = useState("");
   const [marks, setMarks] = useState("");
   const [grade, setGrade] = useState("");
   const [examdate, setExamdate] = useState("");
 
+  const [openDelete, setOpenDelete] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
 
   const [selectedStudent, setSelectedStudent] = useState("all");
   const [selectedSubject, setSelectedSubject] = useState("all");
+
+  const confirmDelete = async () => {
+    try {
+      await axios.delete(`http://localhost:3000/results/${deleteId}`);
+      setOpenDelete(false);
+      fetchResults();
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const fetchResults = async () => {
     try {
@@ -26,13 +43,13 @@ const ResultTable = () => {
       if (!res.ok) throw new Error("Failed to fetch results");
       const data = await res.json();
       setResults(data);
+
       const subjectsList = [...new Set(data.map(r => r.subject))].map(
         (sub, index) => ({
           id: index + 1,
           name: sub
         })
       );
-
       setSubjects(subjectsList);
 
       const studentList = [...new Set(data.map(r => r.name))].map(
@@ -40,25 +57,16 @@ const ResultTable = () => {
           id: idx + 1,
           name: name
         })
+      );
+      setStudents(studentList);
 
-      )
-      setStudents(studentList)
     } catch (err) {
       setError(err.message);
     }
   };
 
-  // const fetchStudents = async () => {
-  //   const res = await fetch("http://localhost:3000/students");
-  //   const data = await res.json();
-  //   setStudents(data);
-  // };
-
-
-
   useEffect(() => {
-    Promise.all([fetchResults(),])
-      .finally(() => setLoading(false));
+    fetchResults().finally(() => setLoading(false));
   }, []);
 
   const handleAdd = async (e) => {
@@ -75,14 +83,42 @@ const ResultTable = () => {
       if (!res.ok) throw new Error("Failed to add result");
 
       fetchResults();
-      setName("");
-      setSubject("");
-      setMarks("");
-      setGrade("");
-      setExamdate("");
+      resetForm();
       setShowForm(false);
     } catch (err) {
       alert(err.message);
+    }
+  };
+
+  const resetForm = () => {
+    setName("");
+    setSubject("");
+    setMarks("");
+    setGrade("");
+    setExamdate("");
+  };
+
+  const openEditModal = (item) => {
+    setEditData(item);
+    setName(item.name);
+    setSubject(item.subject);
+    setMarks(item.marks);
+    setGrade(item.grade);
+    setExamdate(item.examdate);
+    setEditForm(true);
+  };
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    const updated = { name, subject, marks, grade, examdate };
+
+    try {
+      await axios.put(`http://localhost:3000/results/${editData.id}`, updated);
+      setEditForm(false);
+      fetchResults();
+      resetForm();
+    } catch (err) {
+      alert("Update failed");
     }
   };
 
@@ -94,43 +130,30 @@ const ResultTable = () => {
 
   return (
     <div className="student-container">
+
       <div className="head">
         <h1>Result Management</h1>
-        <button className="add-btn" onClick={() => setShowForm(true)}>
-          Add New Result
-        </button>
+        <button className="add-btn" onClick={() => setShowForm(true)}>Add New Result</button>
       </div>
 
-
+     
       <div className="filters" style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
-
-        <select
-          value={selectedStudent}
-          onChange={(e) => setSelectedStudent(e.target.value)}
-        >
+        <select value={selectedStudent} onChange={(e) => setSelectedStudent(e.target.value)}>
           <option value="all">All Students</option>
           {students.map((s) => (
-            <option key={s.id} value={s.name}>
-              {s.name}
-            </option>
+            <option key={s.id} value={s.name}>{s.name}</option>
           ))}
         </select>
 
-
-        <select
-          value={selectedSubject}
-          onChange={(e) => setSelectedSubject(e.target.value)}
-        >
+        <select value={selectedSubject} onChange={(e) => setSelectedSubject(e.target.value)}>
           <option value="all">All Subjects</option>
           {subjects.map((sub) => (
-            <option key={sub.id} value={sub.name}>
-              {sub.name}
-            </option>
+            <option key={sub.id} value={sub.name}>{sub.name}</option>
           ))}
         </select>
       </div>
 
-
+      
       {showForm && (
         <div className="modal-overlay">
           <div className="modal-box">
@@ -138,47 +161,43 @@ const ResultTable = () => {
 
             <form onSubmit={handleAdd}>
               <input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required />
-
-
-
               <input type="text" placeholder="Subject" value={subject} onChange={(e) => setSubject(e.target.value)} required />
-
-
-              <input
-                type="number"
-                placeholder="Marks"
-                value={marks}
-                onChange={(e) => setMarks(e.target.value)}
-                required
-              />
-
-              <input
-                type="text"
-                placeholder="Grade"
-                value={grade}
-                onChange={(e) => setGrade(e.target.value)}
-                required
-              />
-
-              <input
-                type="date"
-                value={examdate}
-                onChange={(e) => setExamdate(e.target.value)}
-                required
-              />
+              <input type="number" placeholder="Marks" value={marks} onChange={(e) => setMarks(e.target.value)} required />
+              <input type="text" placeholder="Grade" value={grade} onChange={(e) => setGrade(e.target.value)} required />
+              <input type="date" value={examdate} onChange={(e) => setExamdate(e.target.value)} required />
 
               <div className="modal-btns">
                 <button type="submit" className="save-btn">Save</button>
-                <button type="button" className="cancel-btn" onClick={() => setShowForm(false)}>
-                  Cancel
-                </button>
+                <button type="button" className="cancel-btn" onClick={() => setShowForm(false)}>Cancel</button>
               </div>
             </form>
           </div>
         </div>
       )}
 
+      
+      {editForm && (
+        <div className="modal-overlay">
+          <div className="modal-box">
+            <h2>Edit Result</h2>
 
+            <form onSubmit={handleUpdate}>
+              <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
+              <input type="text" value={subject} onChange={(e) => setSubject(e.target.value)} required />
+              <input type="number" value={marks} onChange={(e) => setMarks(e.target.value)} required />
+              <input type="text" value={grade} onChange={(e) => setGrade(e.target.value)} required />
+              <input type="date" value={examdate} onChange={(e) => setExamdate(e.target.value)} required />
+
+              <div className="modal-btns">
+                <button type="submit" className="save-btn">Update</button>
+                <button type="button" className="cancel-btn" onClick={() => setEditForm(false)}>Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Table */}
       <div className="table-col">
         {loading && <p>Loading...</p>}
         {error && <p style={{ color: "red" }}>{error}</p>}
@@ -204,16 +223,39 @@ const ResultTable = () => {
                   <td>{r.marks}</td>
                   <td>{r.grade}</td>
                   <td>{r.examdate}</td>
+
                   <td>
-                    <button className="edit-btn">Edit</button>
-                    <button className="delete-btn">Delete</button>
+                    <button
+                      className="edit-btn"
+                      onClick={() => openEditModal(r)}
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      className="delete-btn"
+                      onClick={() => {
+                        setDeleteId(r.id);
+                        setOpenDelete(true);
+                      }}
+                    >
+                      Delete
+                    </button>
                   </td>
+
                 </tr>
               ))}
             </tbody>
           </table>
         )}
       </div>
+
+      {openDelete && (
+        <DeleteDialog
+          close={() => setOpenDelete(false)}
+          confirm={confirmDelete}
+        />
+      )}
     </div>
   );
 };

@@ -8,23 +8,30 @@
       "enrollmentDate": "2025-11-12"
     }
   ],
-  "sections": [],
+  "sections": [
+    {
+      "id": "a0df",
+      "name": "F",
+      "description": "Best Section",
+      "totalStudent": "72"
+    }
+  ],
   "results": [
     {
-      "id": "b5a8",
       "name": "Rudra",
       "subject": "English",
       "marks": "20",
-      "grade": "c",
-      "examdate": "2025-11-28"
+      "grade": "D",
+      "examdate": "2025-11-28",
+      "id": "b5a8"
     },
     {
-      "id": "0b17",
-      "name": "Rohan ",
-      "subject": "maths",
-      "marks": "50",
-      "grade": "B",
-      "examdate": "2025-11-28"
+      "id": "58d7",
+      "name": "Rohan",
+      "subject": "English",
+      "marks": "95",
+      "grade": "A+",
+      "examdate": "2025-11-27"
     }
   ]
 }

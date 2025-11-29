@@ -11,7 +11,7 @@ const SectionTable = () => {
   const [editData, setEditData] = useState(null);
 
   const API = "http://localhost:3000/sections";
-  console.log(deleteId);
+
 
   const fetchSections = async () => {
     try {
